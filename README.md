@@ -111,6 +111,16 @@ CRON_SCHEDULE="0 3 * * *"
 EXEC_START="/home/$SERVICE_USER/$GAME_NAME/startserver.sh -configfile=/home/$SERVICE_USER/$GAME_NAME/serverconfig.xml"
 ```
 
+## Pulling Updates
+
+To pull the latest updates from the repository, navigate to the repository directory and run:
+
+```bash
+git pull origin main
+```
+
+This will fetch and merge the latest changes from the main branch of the repository.
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
