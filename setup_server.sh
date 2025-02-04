@@ -78,25 +78,31 @@ create_user() {
     sudo chown -R $SERVICE_USER:$SERVICE_GROUP $GAME_DIR
 }
 
-# Step 2: Install Dependencies for the Game Server
+# Step 2: Copy the config file to the user's home directory
+copy_config_file() {
+    sudo cp $CONFIG_FILE /home/$SERVICE_USER/
+    sudo chown $SERVICE_USER:$SERVICE_GROUP /home/$SERVICE_USER/server_config_${GAME_NAME}.cfg
+}
+
+# Step 3: Install Dependencies for the Game Server
 install_dependencies() {
     sudo apt update && sudo apt upgrade -y
     sudo apt install -y wget lib32gcc-s1 ufw
 }
 
-# Step 3: Download and Install SteamCMD
+# Step 4: Download and Install SteamCMD
 install_steamcmd() {
     cd /root
     wget https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz
     tar -xvf steamcmd_linux.tar.gz
 }
 
-# Step 4: Install the Game using SteamCMD
+# Step 5: Install the Game using SteamCMD
 install_game() {
     $STEAMCMD_DIR/steamcmd.sh +login anonymous +force_install_dir $GAME_DIR +app_update $STEAM_APP_ID validate +quit
 }
 
-# Step 5: Update the Version in the Config File
+# Step 6: Update the Version in the Config File
 update_version() {
     echo "Running SteamCMD to check for current game version..."
     OUTPUT=$($STEAMCMD_DIR/steamcmd.sh +login anonymous +app_info_update 1 +app_info_print $STEAM_APP_ID +quit)
@@ -108,19 +114,19 @@ update_version() {
     # Update the config file with the new version
     if [ ! -z "$CURRENT_VERSION" ]; then
         echo "Updating version to $CURRENT_VERSION in the config file..."
-        sed -i "s/^STEAM_APP_VERSION=\".*\"/STEAM_APP_VERSION=\"$CURRENT_VERSION\"/" $CONFIG_FILE
+        sudo sed -i "s/^STEAM_APP_VERSION=\".*\"/STEAM_APP_VERSION=\"$CURRENT_VERSION\"/" /home/$SERVICE_USER/server_config_${GAME_NAME}.cfg
     else
         echo "Failed to get the current version. Exiting."
         exit 1
     fi
 }
 
-# Step 6: Open Ports for the Game
+# Step 7: Open Ports for the Game
 open_ports() {
     sudo ufw allow $PORTS_TCP && sudo ufw allow $PORTS_UDP
 }
 
-# Step 7: Configure the Game to Run as a Service
+# Step 8: Configure the Game to Run as a Service
 create_service() {
     if [ ! -f "/etc/systemd/system/$SERVICE_NAME" ]; then
         echo "Creating systemd service for $GAME_NAME..."
@@ -136,7 +142,7 @@ create_service() {
     fi
 }
 
-# Step 8: Enable and Start the Service
+# Step 9: Enable and Start the Service
 enable_and_start_service() {
     # Unmask the service if it's masked
     sudo systemctl unmask $SERVICE_NAME
@@ -147,7 +153,7 @@ enable_and_start_service() {
     sudo systemctl start $SERVICE_NAME
 }
 
-# Step 9: Set Up Cron Job for Regular Updates
+# Step 10: Set Up Cron Job for Regular Updates
 setup_cron() {
     (
         crontab -l 2>/dev/null
@@ -160,28 +166,31 @@ setup_cron() {
 # Step 1: Create User for the Game Server
 perform_action "User $SERVICE_USER" "id \"$SERVICE_USER\" &>/dev/null" "create_user"
 
-# Step 2: Install Dependencies for the Game Server
+# Step 2: Copy the config file to the user's home directory
+copy_config_file
+
+# Step 3: Install Dependencies for the Game Server
 perform_action "Dependencies for the game" "dpkg -l | grep -q wget" "install_dependencies"
 
-# Step 3: Download and Install SteamCMD
+# Step 4: Download and Install SteamCMD
 perform_action "SteamCMD directory $STEAMCMD_DIR" "[ -d \"$STEAMCMD_DIR\" ]" "install_steamcmd"
 
-# Step 4: Install the Game using SteamCMD
+# Step 5: Install the Game using SteamCMD
 perform_action "Game directory $GAME_DIR" "[ -d \"$GAME_DIR\" ]" "install_game"
 
-# Step 5: Update Version in Config File
+# Step 6: Update Version in Config File
 update_version
 
-# Step 6: Open Ports for the Game
+# Step 7: Open Ports for the Game
 perform_action "Firewall ports" "sudo ufw status | grep -q \"$PORTS_TCP\"" "open_ports"
 
-# Step 7: Configure the Game to Run as a Service
+# Step 8: Configure the Game to Run as a Service
 perform_action "Systemd service for $SERVICE_NAME" "[ -f \"/etc/systemd/system/$SERVICE_NAME\" ]" "create_service"
 
-# Step 8: Enable and Start the Service
+# Step 9: Enable and Start the Service
 enable_and_start_service
 
-# Step 9: Set Up Cron Job for Regular Updates
+# Step 10: Set Up Cron Job for Regular Updates
 setup_cron
 
 echo "Displaying the status of the service. Press 'q' to exit the status screen."
