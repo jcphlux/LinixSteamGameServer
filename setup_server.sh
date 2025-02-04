@@ -98,7 +98,12 @@ install_game() {
 
 # Step 5: Update the Version in the Config File
 update_version() {
-    CURRENT_VERSION=$($STEAMCMD_DIR/steamcmd.sh +login anonymous +force_install_dir $GAME_DIR +app_info_update 1 +app_info_print $STEAM_APP_ID +quit | grep -oP '(?<=buildid":)[0-9]+')
+    echo "Running SteamCMD to check for current game version..."
+    OUTPUT=$($STEAMCMD_DIR/steamcmd.sh +login anonymous +app_info_update 1 +app_info_print $STEAM_APP_ID +quit)
+
+    # Extract build ID using the provided command
+    echo "Attempting to extract build ID using the provided command..."
+    CURRENT_VERSION=$(echo "$OUTPUT" | grep -EA 1000 "^\s+\"branches\"$" | grep -EA 5 "^\s+\"public\"$" | grep -m 1 -EB 10 "^\s+}$" | grep -E "^\s+\"buildid\"\s+" | tr '[:blank:]' ' ' | tr -s ' ' | cut -d' ' -f3)
 
     # Update the config file with the new version
     if [ ! -z "$CURRENT_VERSION" ]; then

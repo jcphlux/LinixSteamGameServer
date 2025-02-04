@@ -31,7 +31,10 @@ CURRENT_VERSION=$STEAM_APP_VERSION
 echo "Current version from config: $CURRENT_VERSION"
 
 # Step 3: Check the Latest Version Available on Steam
-LATEST_VERSION=$($STEAMCMD_DIR/steamcmd.sh +login anonymous +force_install_dir $GAME_DIR +app_info_update 1 +app_info_print $STEAM_APP_ID +quit | grep -oP '(?<=buildid":)[0-9]+')
+OUTPUT=$($STEAMCMD_DIR/steamcmd.sh +login anonymous +app_info_update 1 +app_info_print $STEAM_APP_ID +quit)
+
+# Extract build ID using the provided command
+LATEST_VERSION=$(echo "$OUTPUT" | grep -EA 1000 "^\s+\"branches\"$" | grep -EA 5 "^\s+\"public\"$" | grep -m 1 -EB 10 "^\s+}$" | grep -E "^\s+\"buildid\"\s+" | tr '[:blank:]' ' ' | tr -s ' ' | cut -d' ' -f3)
 
 # If no version info found, exit
 if [ -z "$LATEST_VERSION" ]; then
