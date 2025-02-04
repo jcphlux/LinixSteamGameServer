@@ -22,6 +22,14 @@ fi
 # Source the config file (this will load the variables into the script)
 source $CONFIG_FILE
 
+# Confirmation step
+echo "Are you sure you want to uninstall the server? Type 'uninstall' to confirm:"
+read CONFIRMATION
+if [ "$CONFIRMATION" != "uninstall" ]; then
+    echo "Uninstallation aborted."
+    exit 1
+fi
+
 # Step 1: Stop and Disable the Service
 echo "Stopping and disabling the service..."
 sudo systemctl stop $SERVICE_NAME
