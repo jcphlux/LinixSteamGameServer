@@ -13,7 +13,7 @@ fi
 GAME_NAME="$1"
 CONFIG_FILE="$REPO_PATH/config/server_config_${GAME_NAME}.cfg"
 
-# Check if the config file exists
+# Check if the config file exists (exit if not found)
 if [ ! -f "$CONFIG_FILE" ]; then
     echo "Config file $CONFIG_FILE not found!"
     exit 1

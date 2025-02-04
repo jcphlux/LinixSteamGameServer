@@ -171,5 +171,9 @@ enable_and_start_service
 # Step 9: Set Up Cron Job for Regular Updates
 setup_cron
 
+echo "Displaying the status of the service. Press 'q' to exit the status screen."
+# Prompt the user to press any key to continue
+echo "Press any key to continue (or press Ctrl+C to exit)..."
+read -n 1 -s
 # Check the status of the service
 sudo systemctl status $SERVICE_NAME
