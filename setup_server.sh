@@ -126,11 +126,11 @@ create_service() {
         echo "Creating systemd service for $GAME_NAME..."
 
         # Create a temporary service file with the replaced values
-        sed "s/{{GAME_NAME}}/$GAME_NAME/g;
-             s/{{SERVICE_USER}}/$SERVICE_USER/g;
-             s/{{GAME_DIR}}/$GAME_DIR/g;
-             s/{{EXEC_START}}/$EXEC_START/g" \
-            $SERVICE_TEMPLATE >/etc/systemd/system/$SERVICE_NAME
+        sed "s|{{GAME_NAME}}|$GAME_NAME|g;
+             s|{{SERVICE_USER}}|$SERVICE_USER|g;
+             s|{{GAME_DIR}}|$GAME_DIR|g;
+             s|{{EXEC_START}}|$EXEC_START|g" \
+            $SERVICE_TEMPLATE > /etc/systemd/system/$SERVICE_NAME
     else
         echo "Systemd service file already exists."
     fi
@@ -138,6 +138,10 @@ create_service() {
 
 # Step 8: Enable and Start the Service
 enable_and_start_service() {
+    # Unmask the service if it's masked
+    sudo systemctl unmask $SERVICE_NAME
+
+    # Enable and start the service
     sudo systemctl daemon-reload
     sudo systemctl enable $SERVICE_NAME
     sudo systemctl start $SERVICE_NAME
