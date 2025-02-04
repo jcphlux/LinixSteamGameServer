@@ -36,20 +36,21 @@ prompt_replace_or_skip() {
         echo "$step already exists. Do you want to replace it? (y: replace, n: skip, q: quit)"
         read -p "Enter your choice: " choice
         case "$choice" in
-            y|Y)
-                echo "Replacing $step..."
-                return 0  # Indicate that we should perform the replacement
-                ;;
-            n|N)
-                echo "Skipping $step..."
-                return 1  # Indicate that we should skip the action
-                ;;
-            q|Q)
-                echo "Exiting the setup."
-                exit 0  # Exit the script
-                ;;
-            *)
-                echo "Invalid choice. Please enter y, n, or q."
+        y | Y)
+            echo "Replacing $step..."
+            return 0 # Indicate that we should perform the replacement
+            ;;
+        n | N)
+            echo "Skipping $step..."
+            return 1 # Indicate that we should skip the action
+            ;;
+        q | Q)
+            echo "Exiting the setup."
+            exit 0 # Exit the script
+            ;;
+        *)
+            echo "Invalid choice. Please enter y, n, or q."
+            ;;
         esac
     done
 }
@@ -59,7 +60,7 @@ perform_action() {
     local step="$1"
     local condition="$2"
     local action="$3"
-    
+
     if $condition; then
         prompt_replace_or_skip "$step"
         if [ $? -eq 0 ]; then
@@ -124,7 +125,7 @@ create_service() {
              s/{{SERVICE_USER}}/$SERVICE_USER/g;
              s/{{GAME_DIR}}/$GAME_DIR/g;
              s/{{EXEC_START}}/$EXEC_START/g" \
-             $SERVICE_TEMPLATE > /etc/systemd/system/$SERVICE_NAME
+            $SERVICE_TEMPLATE >/etc/systemd/system/$SERVICE_NAME
     else
         echo "Systemd service file already exists."
     fi
@@ -139,7 +140,10 @@ enable_and_start_service() {
 
 # Step 9: Set Up Cron Job for Regular Updates
 setup_cron() {
-    (crontab -l 2>/dev/null; echo "$CRON_SCHEDULE $UPDATE_SCRIPT_PATH") | crontab -
+    (
+        crontab -l 2>/dev/null
+        echo "$CRON_SCHEDULE $UPDATE_SCRIPT_PATH"
+    ) | crontab -
 }
 
 # Main Script Logic to Execute Each Step with Conditional Check
