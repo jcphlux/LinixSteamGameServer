@@ -201,7 +201,7 @@ perform_action "Game directory $GAME_DIR" "[ -d \"$GAME_DIR\" ]" "install_game"
 update_version
 
 # Step 7: Open Ports for the Game
-perform_action "Firewall ports" "sudo ufw status | grep -q \"$PORTS_TCP\"" "open_ports"
+perform_action "Firewall ports" "sudo ufw status | grep -q 'Status: active' && sudo ufw status | grep -q \"$PORTS_TCP\"" "open_ports"
 
 # Step 8: Configure the Game to Run as a Service
 perform_action "Systemd service for $SERVICE_NAME" "[ -f \"/etc/systemd/system/$SERVICE_NAME\" ]" "create_service"
