@@ -20,6 +20,15 @@ This repository contains scripts and configuration files to set up, manage, and 
   - Checks for the latest version of the game and updates it if necessary.
   - Restarts the game server after the update.
 
+- **uninstall_server.sh**: Automates the uninstallation of the game server.
+  - Stops and disables the systemd service.
+  - Removes the systemd service file.
+  - Deletes the game directory.
+  - Removes the user and group created for the game server.
+  - Deletes the config file from the user's home directory.
+  - Removes the cron job for regular updates.
+  - Deletes the firewall rules.
+
 ## Requirements
 
 - Linux-based system (e.g., Ubuntu)
@@ -66,6 +75,21 @@ This repository contains scripts and configuration files to set up, manage, and 
    This will:
    - Update all server packages using `apt`.
    - Check for any game updates and apply them.
+
+6. **To uninstall the game server**:
+
+   ```bash
+   ./uninstall_server.sh 7d2d
+   ```
+
+   This will:
+   - Stop and disable the systemd service.
+   - Remove the systemd service file.
+   - Delete the game directory.
+   - Remove the user and group created for the game server.
+   - Delete the config file from the user's home directory.
+   - Remove the cron job for regular updates.
+   - Delete the firewall rules.
 
 ## Configuration
 
