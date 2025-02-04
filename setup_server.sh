@@ -104,7 +104,7 @@ install_steamcmd() {
 # Step 5: Install the Game using SteamCMD
 install_game() {
     echo "Installing the game using SteamCMD..."
-    $STEAMCMD_DIR/steamcmd.sh +login anonymous +force_install_dir $GAME_DIR +app_update $STEAM_APP_ID validate +quit
+    sudo -u $SERVICE_USER $STEAMCMD_DIR/steamcmd.sh +login anonymous +force_install_dir $GAME_DIR +app_update $STEAM_APP_ID validate +quit
 }
 
 # Step 6: Update the Version in the Config File
@@ -129,8 +129,8 @@ update_version() {
 # Step 7: Open Ports for the Game
 open_ports() {
     echo "Opening firewall ports..."
-    sudo ufw allow $PORTS_TCP 
-    sudo ufw allow $PORTS_UDP
+    sudo ufw allow ${PORT_START}:${PORT_END}/tcp
+    sudo ufw allow ${PORT_START}:${PORT_END}/udp
 }
 
 # Step 8: Configure the Game to Run as a Service
