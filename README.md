@@ -1,4 +1,3 @@
-
 # LinuxSteamGameServer
 
 <img src="./assets/LinuxSteamGameServer.png" alt="Project Logo" height="100">
@@ -27,19 +26,27 @@ This repository contains scripts and configuration files to set up, manage, and 
 - Root or sudo access to install packages and configure services.
 - SteamCMD installed (the script handles installation if not already installed).
 - The game you wish to install and manage with SteamCMD (e.g., `7d2d` for 7 Days to Die).
-  
+- Git installed (if not, see the setup section below).
+
 ## Setup
 
-1. Clone the repository:
+1. **Install Git** (if not already installed):
+
+   ```bash
+   sudo apt update
+   sudo apt install git -y
+   ```
+
+2. **Clone the repository**:
 
    ```bash
    git clone https://github.com/jcphlux/LinixSteamGameServer.git
    cd LinixSteamGameServer
    ```
 
-2. Create the game-specific config file in the `config/` directory. Use `server_config_template.cfg` to create new config files for different games.
+3. **Create the game-specific config file** in the `config/` directory. Use `server_config_template.cfg` to create new config files for different games.
 
-3. Run the setup script:
+4. **Run the setup script**:
 
    ```bash
    ./setup_server.sh 7d2d
@@ -49,7 +56,7 @@ This repository contains scripts and configuration files to set up, manage, and 
    - Load the configuration from `server_config_7d2d.cfg`.
    - Prompt you to replace or skip existing steps like user creation, SteamCMD installation, etc.
 
-4. To update the game server:
+5. **To update the game server**:
 
    ```bash
    ./update_check.sh 7d2d

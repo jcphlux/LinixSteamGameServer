@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Get the current directory (repo path)
+REPO_PATH=$(pwd)
+
 # Check if game name is passed as an argument
 if [ -z "$1" ]; then
     echo "Please provide the game name (e.g., 7d2d)."
@@ -8,7 +11,7 @@ fi
 
 # Define the config file path dynamically based on the game name
 GAME_NAME="$1"
-CONFIG_FILE="./config/server_config_${GAME_NAME}.cfg"
+CONFIG_FILE="$REPO_PATH/config/server_config_${GAME_NAME}.cfg"
 
 # Check if the config file exists
 if [ ! -f "$CONFIG_FILE" ]; then
@@ -20,10 +23,10 @@ fi
 source $CONFIG_FILE
 
 # Hard-code the path to the update script (repo path)
-UPDATE_SCRIPT_PATH="./update_check.sh"
+UPDATE_SCRIPT_PATH="$REPO_PATH/update_check.sh"
 
 # Hard-code the path to the service file template
-SERVICE_TEMPLATE="./template/systemd_service_template.service"
+SERVICE_TEMPLATE="$REPO_PATH/template/systemd_service_template.service"
 
 # Generic function to prompt for replacing, skipping, or quitting a step
 prompt_replace_or_skip() {
@@ -56,21 +59,11 @@ perform_action() {
     local step="$1"
     local condition="$2"
     local action="$3"
-    local extra_step_flag="$4"
-    local extra_step_function="$5"
     
     if $condition; then
-        echo "$step already exists. Do you want to replace it? (y/n)"
-        read -p "Enter your choice: " choice
-        if [[ "$choice" == "y" ]]; then
-            if [ "$extra_step_flag" == "yes" ]; then
-                echo "Performing extra step: $extra_step_function"
-                eval "$extra_step_function"
-            fi
-            echo "Replacing $step..."
+        prompt_replace_or_skip "$step"
+        if [ $? -eq 0 ]; then
             eval "$action"
-        else
-            echo "Skipping $step..."
         fi
     else
         echo "$step does not exist. Proceeding with action..."
@@ -131,13 +124,11 @@ create_service() {
              s/{{SERVICE_USER}}/$SERVICE_USER/g;
              s/{{GAME_DIR}}/$GAME_DIR/g;
              s/{{EXEC_START}}/$EXEC_START/g" \
-             ./template/systemd_service_template.service > /etc/systemd/system/$SERVICE_NAME
-
+             $SERVICE_TEMPLATE > /etc/systemd/system/$SERVICE_NAME
     else
         echo "Systemd service file already exists."
     fi
 }
-
 
 # Step 8: Enable and Start the Service
 enable_and_start_service() {
@@ -154,25 +145,25 @@ setup_cron() {
 # Main Script Logic to Execute Each Step with Conditional Check
 
 # Step 1: Create User for the Game Server
-perform_action "User $SERVICE_USER" "id \"$SERVICE_USER\" &>/dev/null" "create_user" "yes" "remove_user"
+perform_action "User $SERVICE_USER" "id \"$SERVICE_USER\" &>/dev/null" "create_user"
 
 # Step 2: Install Dependencies for the Game Server
-perform_action "Dependencies for the game" "dpkg -l | grep -q wget" "install_dependencies" "no" ""
+perform_action "Dependencies for the game" "dpkg -l | grep -q wget" "install_dependencies"
 
 # Step 3: Download and Install SteamCMD
-perform_action "SteamCMD directory $STEAMCMD_DIR" "[ -d \"$STEAMCMD_DIR\" ]" "install_steamcmd" "yes" "remove_directory $STEAMCMD_DIR"
+perform_action "SteamCMD directory $STEAMCMD_DIR" "[ -d \"$STEAMCMD_DIR\" ]" "install_steamcmd"
 
 # Step 4: Install the Game using SteamCMD
-perform_action "Game directory $GAME_DIR" "[ -d \"$GAME_DIR\" ]" "install_game" "yes" "remove_directory $GAME_DIR"
+perform_action "Game directory $GAME_DIR" "[ -d \"$GAME_DIR\" ]" "install_game"
 
 # Step 5: Update Version in Config File
 update_version
 
 # Step 6: Open Ports for the Game
-perform_action "Firewall ports" "sudo ufw status | grep -q \"$PORTS_TCP\"" "open_ports" "no" ""
+perform_action "Firewall ports" "sudo ufw status | grep -q \"$PORTS_TCP\"" "open_ports"
 
 # Step 7: Configure the Game to Run as a Service
-perform_action "Systemd service for $SERVICE_NAME" "[ -f \"/etc/systemd/system/$SERVICE_NAME\" ]" "create_service" "yes" "sudo rm -f /etc/systemd/system/$SERVICE_NAME"
+perform_action "Systemd service for $SERVICE_NAME" "[ -f \"/etc/systemd/system/$SERVICE_NAME\" ]" "create_service"
 
 # Step 8: Enable and Start the Service
 enable_and_start_service

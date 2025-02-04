@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Get the current directory (repo path)
+REPO_PATH=$(pwd)
+
 # Check if game name is passed as an argument
 if [ -z "$1" ]; then
     echo "Please provide the game name (e.g., 7d2d)."
@@ -8,7 +11,7 @@ fi
 
 # Define the config file path dynamically based on the game name
 GAME_NAME="$1"
-CONFIG_FILE="./config/server_config_${GAME_NAME}.cfg"
+CONFIG_FILE="$REPO_PATH/config/server_config_${GAME_NAME}.cfg"
 
 # Check if the config file exists
 if [ ! -f "$CONFIG_FILE" ]; then
@@ -43,7 +46,7 @@ if [ "$CURRENT_VERSION" != "$LATEST_VERSION" ]; then
     echo "New version found. Updating $GAME_NAME..."
 
     # Stop the server before updating
-    systemctl stop $SERVICE_NAME
+    sudo systemctl stop $SERVICE_NAME
 
     # Run the update using SteamCMD
     $STEAMCMD_DIR/steamcmd.sh +login anonymous +force_install_dir $GAME_DIR +app_update $STEAM_APP_ID validate +quit
@@ -53,7 +56,7 @@ if [ "$CURRENT_VERSION" != "$LATEST_VERSION" ]; then
     sed -i "s/^STEAM_APP_VERSION=\".*\"/STEAM_APP_VERSION=\"$LATEST_VERSION\"/" $CONFIG_FILE
 
     # Restart the server after the update
-    systemctl start $SERVICE_NAME
+    sudo systemctl start $SERVICE_NAME
 
     echo "Update completed and server restarted."
 else
