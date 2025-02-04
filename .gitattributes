@@ -1,0 +1,2 @@
+# .gitattributes file
+*.sh   text eol=lf  # Ensure LF line endings and executable permission
