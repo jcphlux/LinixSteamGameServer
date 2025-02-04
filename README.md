@@ -104,7 +104,7 @@ Game-specific configuration is stored in the `config/` directory. The config fil
 STEAM_APP_ID="294420"
 
 # Steam App Version (this will get updated by the script)
-STEAM_APP_VERSION=""
+STEAM_APP_VERSION="0"
 
 # The user and group to run the service under
 SERVICE_USER="7d2d"
@@ -117,17 +117,14 @@ GAME_NAME="7d2d"
 GAME_DIR="/home/$SERVICE_USER/$GAME_NAME"
 
 # Path to the SteamCMD installation directory
-STEAMCMD_DIR="/root/steamcmd"
+STEAMCMD_DIR="/root"
 
 # Name of the systemd service for the game (this is constructed from the GAME_NAME variable)
 SERVICE_NAME="$GAME_NAME-server.service"
 
 # Ports to be opened for the game (can be updated for other games as needed)
-PORTS_TCP="26900:26905/tcp"
-PORTS_UDP="26900:26905/udp"
-
-# Path to the update check script (for use in cron)
-UPDATE_SCRIPT_PATH="/etc/mygameserver/$GAME_NAME/update_check.sh"
+PORT_START="26900"
+PORT_END="26905"
 
 # Cron job schedule (default: run once a day at 3 AM)
 CRON_SCHEDULE="0 3 * * *"
