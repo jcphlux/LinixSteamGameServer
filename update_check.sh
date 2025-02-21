@@ -11,7 +11,7 @@ fi
 
 # Define the config file path dynamically based on the game name
 GAME_NAME="$1"
-CONFIG_FILE="/home/$SERVICE_USER/server_config_${GAME_NAME}.cfg"
+CONFIG_FILE="$USER_DIR/server_config_${GAME_NAME}.cfg"
 
 # Check if the config file exists
 if [ ! -f "$CONFIG_FILE" ]; then

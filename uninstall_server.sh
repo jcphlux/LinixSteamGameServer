@@ -51,7 +51,7 @@ sudo groupdel $SERVICE_GROUP
 
 # Step 5: Remove the Config File from User's Home Directory
 echo "Removing the config file from the user's home directory..."
-sudo rm -f /home/$SERVICE_USER/server_config_${GAME_NAME}.cfg
+sudo rm -f $USER_DIR/server_config_${GAME_NAME}.cfg
 
 # Step 6: Remove Cron Job for Regular Updates
 echo "Removing the cron job for regular updates..."

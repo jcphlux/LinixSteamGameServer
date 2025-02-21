@@ -83,7 +83,7 @@ create_user() {
 copy_config_file() {
     echo "Copying the config file to the user's home directory..."
     sudo cp $CONFIG_FILE $USER_DIR/
-    sudo chown $SERVICE_USER:$SERVICE_GROUP /home/$SERVICE_USER/server_config_${GAME_NAME}.cfg
+    sudo chown $SERVICE_USER:$SERVICE_GROUP $USER_DIR/server_config_${GAME_NAME}.cfg
 }
 
 # Step 3: Install Dependencies for the Game Server
@@ -127,7 +127,7 @@ update_version() {
     # Update the config file with the new version
     if [ ! -z "$CURRENT_VERSION" ]; then
         echo "Updating version to $CURRENT_VERSION in the config file..."
-        sudo sed -i "s/^STEAM_APP_VERSION=\".*\"/STEAM_APP_VERSION=\"$CURRENT_VERSION\"/" /home/$SERVICE_USER/server_config_${GAME_NAME}.cfg
+        sudo sed -i "s/^STEAM_APP_VERSION=\".*\"/STEAM_APP_VERSION=\"$CURRENT_VERSION\"/" $USER_DIR/server_config_${GAME_NAME}.cfg
     else
         echo "Failed to get the current version. Exiting."
         exit 1
@@ -191,19 +191,19 @@ reload_and_start_service() {
 # Step 13: Configure SFTP Access for the Service User
 configure_sftp_access() {
     echo "Configuring SFTP access for $SERVICE_USER..."
-    sudo mkdir -p /home/$SERVICE_USER/.ssh
-    sudo chown $SERVICE_USER:$SERVICE_GROUP /home/$SERVICE_USER/.ssh
-    sudo chmod 700 /home/$SERVICE_USER/.ssh
+    sudo mkdir -p $USER_DIR/.ssh
+    sudo chown $SERVICE_USER:$SERVICE_GROUP $USER_DIR/.ssh
+    sudo chmod 700 $USER_DIR/.ssh
 
     # Generate SSH key pair
-    sudo -u $SERVICE_USER ssh-keygen -t rsa -b 2048 -f /home/$SERVICE_USER/.ssh/id_rsa -N ""
-    sudo chown $SERVICE_USER:$SERVICE_GROUP /home/$SERVICE_USER/.ssh/id_rsa
-    sudo chown $SERVICE_USER:$SERVICE_GROUP /home/$SERVICE_USER/.ssh/id_rsa.pub
+    sudo -u $SERVICE_USER ssh-keygen -t rsa -b 2048 -f $USER_DIR/.ssh/id_rsa -N ""
+    sudo chown $SERVICE_USER:$SERVICE_GROUP $USER_DIR/.ssh/id_rsa
+    sudo chown $SERVICE_USER:$SERVICE_GROUP $USER_DIR/.ssh/id_rsa.pub
 
     # Add the public key to authorized_keys
-    sudo cat /home/$SERVICE_USER/.ssh/id_rsa.pub | sudo tee /home/$SERVICE_USER/.ssh/authorized_keys
-    sudo chown $SERVICE_USER:$SERVICE_GROUP /home/$SERVICE_USER/.ssh/authorized_keys
-    sudo chmod 600 /home/$SERVICE_USER/.ssh/authorized_keys
+    sudo cat $USER_DIR/.ssh/id_rsa.pub | sudo tee $USER_DIR/.ssh/authorized_keys
+    sudo chown $SERVICE_USER:$SERVICE_GROUP $USER_DIR/.ssh/authorized_keys
+    sudo chmod 600 $USER_DIR/.ssh/authorized_keys
 
     sudo bash -c "cat >> /etc/ssh/sshd_config <<EOL
 
@@ -218,7 +218,7 @@ EOL"
 display_public_key() {
     echo "Public key for SFTP access:"
     echo 
-    sudo cat /home/$SERVICE_USER/.ssh/id_rsa.pub
+    sudo cat $USER_DIR/.ssh/id_rsa.pub
     echo
     echo "Please copy the above public key."
     echo "Please add this public key to the authorized_keys file on the remote client you want to connect from."
