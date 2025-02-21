@@ -62,4 +62,9 @@ echo "Removing firewall rules..."
 sudo ufw delete allow $PORTS_TCP
 sudo ufw delete allow $PORTS_UDP
 
+# Step 8: Remove SFTP Configuration
+echo "Removing SFTP configuration..."
+sudo sed -i "/Match User $SERVICE_USER/,+4d" /etc/ssh/sshd_config
+sudo systemctl restart sshd
+
 echo "Uninstallation completed."

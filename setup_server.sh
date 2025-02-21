@@ -180,6 +180,40 @@ reload_and_start_service() {
     sudo systemctl start $SERVICE_NAME
 }
 
+# Step 13: Configure SFTP Access for the Service User
+configure_sftp_access() {
+    echo "Configuring SFTP access for $SERVICE_USER..."
+    sudo mkdir -p /home/$SERVICE_USER/.ssh
+    sudo chown $SERVICE_USER:$SERVICE_GROUP /home/$SERVICE_USER/.ssh
+    sudo chmod 700 /home/$SERVICE_USER/.ssh
+
+    # Generate SSH key pair
+    sudo -u $SERVICE_USER ssh-keygen -t rsa -b 2048 -f /home/$SERVICE_USER/.ssh/id_rsa -N ""
+    sudo chown $SERVICE_USER:$SERVICE_GROUP /home/$SERVICE_USER/.ssh/id_rsa
+    sudo chown $SERVICE_USER:$SERVICE_GROUP /home/$SERVICE_USER/.ssh/id_rsa.pub
+
+    # Add the public key to authorized_keys
+    sudo cat /home/$SERVICE_USER/.ssh/id_rsa.pub | sudo tee /home/$SERVICE_USER/.ssh/authorized_keys
+    sudo chown $SERVICE_USER:$SERVICE_GROUP /home/$SERVICE_USER/.ssh/authorized_keys
+    sudo chmod 600 /home/$SERVICE_USER/.ssh/authorized_keys
+
+    sudo bash -c "cat >> /etc/ssh/sshd_config <<EOL
+
+Match User $SERVICE_USER
+    ChrootDirectory $GAME_DIR
+    ForceCommand internal-sftp
+    AllowTcpForwarding no
+EOL"
+}
+
+# Display the public key at the end of the script
+display_public_key() {
+    echo "Public key for SFTP access:"
+    sudo cat /home/$SERVICE_USER/.ssh/id_rsa.pub
+    echo "Please add this public key to the authorized_keys file on the remote client you want to connect from."
+}
+
+
 # Main Script Logic to Execute Each Step with Conditional Check
 
 # Step 1: Create User for the Game Server
@@ -217,6 +251,12 @@ give_user_permissions
 
 # Step 12: Reload Systemd and Start the Service
 reload_and_start_service
+
+# Step 13: Configure SFTP Access for the Service User
+configure_sftp_access
+
+# Step 14: Display the Public Key for SFTP Access
+display_public_key
 
 echo "Displaying the status of the service. Press 'q' to exit the status screen."
 # Prompt the user to press any key to continue
