@@ -103,7 +103,10 @@ install_steamcmd() {
     cd $STEAMCMD_DIR
     wget https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz
     tar -xvf steamcmd_linux.tar.gz
-    sudo chown -R $SERVICE_USER:$SERVICE_GROUP $STEAMCMD_DIR/steamcmd.sh
+    sudo chown -R $SERVICE_USER:$SERVICE_GROUP $STEAMCMD_DIR
+    chmod +x $STEAMCMD_DIR/steamcmd.sh
+    # Remove the tar.gz file after extraction
+    rm steamcmd_linux.tar.gz
 }
 
 # Step 5: Install the Game using SteamCMD
