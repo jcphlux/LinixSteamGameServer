@@ -51,7 +51,6 @@ This repository contains scripts and configuration files to set up, manage, and 
    ```bash
    git clone https://github.com/jcphlux/LinixSteamGameServer.git
    cd LinixSteamGameServer
-   chmod +x *.sh
    ```
 
 3. **Create the game-specific config file** in the `config/` directory. Use `server_config_template.cfg` to create new config files for different games.
