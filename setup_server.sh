@@ -82,7 +82,7 @@ create_user() {
 # Step 2: Copy the config file to the user's home directory
 copy_config_file() {
     echo "Copying the config file to the user's home directory..."
-    sudo cp $CONFIG_FILE /home/$SERVICE_USER/
+    sudo cp $CONFIG_FILE $USER_DIR/
     sudo chown $SERVICE_USER:$SERVICE_GROUP /home/$SERVICE_USER/server_config_${GAME_NAME}.cfg
 }
 
@@ -96,9 +96,14 @@ install_dependencies() {
 # Step 4: Download and Install SteamCMD
 install_steamcmd() {
     echo "Downloading and installing SteamCMD..."
-    cd /root
+    if [ ! -d "$STEAMCMD_DIR" ]; then
+        sudo mkdir -p $STEAMCMD_DIR
+        sudo chown -R $SERVICE_USER:$SERVICE_GROUP $STEAMCMD_DIR
+    fi
+    cd $STEAMCMD_DIR
     wget https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz
     tar -xvf steamcmd_linux.tar.gz
+    sudo chown -R $SERVICE_USER:$SERVICE_GROUP $STEAMCMD_DIR/steamcmd.sh
 }
 
 # Step 5: Install the Game using SteamCMD
@@ -209,7 +214,10 @@ EOL"
 # Display the public key at the end of the script
 display_public_key() {
     echo "Public key for SFTP access:"
+    echo 
     sudo cat /home/$SERVICE_USER/.ssh/id_rsa.pub
+    echo
+    echo "Please copy the above public key."
     echo "Please add this public key to the authorized_keys file on the remote client you want to connect from."
 }
 
