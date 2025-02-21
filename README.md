@@ -104,6 +104,10 @@ Game-specific configuration is stored in the `config/` directory. The config fil
 # 7 Days to Die Steam App ID
 STEAM_APP_ID="294420"
 
+# Steam App beta branch (if applicable, leave empty for default branch)
+# For example, "experimental" for 7 Days to Die experimental branch
+STEAM_APP_BETA=""
+
 # Steam App Version (this will get updated by the script)
 STEAM_APP_VERSION="0"
 
@@ -133,6 +137,18 @@ CRON_SCHEDULE="0 3 * * *"
 # ExecStart command to run the server (this is where the game-specific command goes)
 EXEC_START="/home/$SERVICE_USER/$GAME_NAME/startserver.sh -configfile=/home/$SERVICE_USER/$GAME_NAME/serverconfig.xml"
 ```
+
+### Setting the Steam App Beta Branch
+
+If you want to install a beta version of the game, you can set the `STEAM_APP_BETA` variable in the configuration file. For example, to install the "experimental" branch for 7 Days to Die, set:
+
+```bash
+# Steam App beta branch (if applicable, leave empty for default branch)
+# For example, "experimental" for 7 Days to Die experimental branch
+STEAM_APP_BETA="experimental"
+```
+
+The setup and update scripts will use this variable to install and update the specified beta branch.
 
 ## SFTP Access
 

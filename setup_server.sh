@@ -112,13 +112,21 @@ install_steamcmd() {
 # Step 5: Install the Game using SteamCMD
 install_game() {
     echo "Installing the game using SteamCMD..."
-    sudo -u $SERVICE_USER $STEAMCMD_DIR/steamcmd.sh +login anonymous +force_install_dir $GAME_DIR +app_update $STEAM_APP_ID validate +quit
+    if [ -n "$STEAM_APP_BETA" ]; then
+        sudo -u $SERVICE_USER $STEAMCMD_DIR/steamcmd.sh +login anonymous +force_install_dir $GAME_DIR +app_update $STEAM_APP_ID -beta $STEAM_APP_BETA validate +quit
+    else
+        sudo -u $SERVICE_USER $STEAMCMD_DIR/steamcmd.sh +login anonymous +force_install_dir $GAME_DIR +app_update $STEAM_APP_ID validate +quit
+    fi
 }
 
 # Step 6: Update the Version in the Config File
 update_version() {
     echo "Running SteamCMD to check for current game version..."
-    OUTPUT=$($STEAMCMD_DIR/steamcmd.sh +login anonymous +app_info_update 1 +app_info_print $STEAM_APP_ID +quit)
+    if [ -n "$STEAM_APP_BETA" ]; then
+        OUTPUT=$($STEAMCMD_DIR/steamcmd.sh +login anonymous +app_info_update 1 +app_info_print $STEAM_APP_ID -beta $STEAM_APP_BETA +quit)
+    else
+        OUTPUT=$($STEAMCMD_DIR/steamcmd.sh +login anonymous +app_info_update 1 +app_info_print $STEAM_APP_ID +quit)
+    fi
 
     # Extract build ID using the provided command
     echo "Attempting to extract build ID using the provided command..."

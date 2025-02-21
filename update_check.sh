@@ -31,7 +31,11 @@ CURRENT_VERSION=$STEAM_APP_VERSION
 echo "Current version from config: $CURRENT_VERSION"
 
 # Step 3: Check the Latest Version Available on Steam
-OUTPUT=$($STEAMCMD_DIR/steamcmd.sh +login anonymous +app_info_update 1 +app_info_print $STEAM_APP_ID +quit)
+if [ -n "$STEAM_APP_BETA" ]; then
+    OUTPUT=$($STEAMCMD_DIR/steamcmd.sh +login anonymous +app_info_update 1 +app_info_print $STEAM_APP_ID -beta $STEAM_APP_BETA +quit)
+else
+    OUTPUT=$($STEAMCMD_DIR/steamcmd.sh +login anonymous +app_info_update 1 +app_info_print $STEAM_APP_ID +quit)
+fi
 
 # Extract build ID using the provided command
 LATEST_VERSION=$(echo "$OUTPUT" | grep -EA 1000 "^\s+\"branches\"$" | grep -EA 5 "^\s+\"public\"$" | grep -m 1 -EB 10 "^\s+}$" | grep -E "^\s+\"buildid\"\s+" | tr '[:blank:]' ' ' | tr -s ' ' | cut -d' ' -f3)
@@ -52,7 +56,11 @@ if [ "$CURRENT_VERSION" != "$LATEST_VERSION" ]; then
     sudo systemctl stop $SERVICE_NAME
 
     # Run the update using SteamCMD
-    $STEAMCMD_DIR/steamcmd.sh +login anonymous +force_install_dir $GAME_DIR +app_update $STEAM_APP_ID validate +quit
+    if [ -n "$STEAM_APP_BETA" ]; then
+        $STEAMCMD_DIR/steamcmd.sh +login anonymous +force_install_dir $GAME_DIR +app_update $STEAM_APP_ID -beta $STEAM_APP_BETA validate +quit
+    else
+        $STEAMCMD_DIR/steamcmd.sh +login anonymous +force_install_dir $GAME_DIR +app_update $STEAM_APP_ID validate +quit
+    fi
 
     # After update, update the version in the config file
     echo "Updating version to $LATEST_VERSION in the config file..."
